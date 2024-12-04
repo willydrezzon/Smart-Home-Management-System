@@ -1,0 +1,153 @@
+CREATE DATABASE homeauto;
+USE DATABASE homeauto;
+CREATE TABLE Users (
+    UserID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    Email VARCHAR(100),
+    Phone VARCHAR(15),
+    Address VARCHAR(255),
+    PreferredEnergySavingMode VARCHAR(50)
+);
+
+CREATE TABLE Devices (
+    DeviceID INT PRIMARY KEY AUTO_INCREMENT,
+    DeviceType VARCHAR(50),
+    Manufacturer VARCHAR(50),
+    Model VARCHAR(50),
+    InstallationDate DATE,
+    UserID INT,
+    CurrentSettings TEXT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE UsageLogs (
+    LogID INT PRIMARY KEY AUTO_INCREMENT,
+    DeviceID INT,
+    Timestamp DATETIME,
+    EnergyConsumption FLOAT,
+    UsageDuration FLOAT,
+    Status VARCHAR(20),
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID)
+);
+
+CREATE TABLE Alerts (
+    AlertID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    DeviceID INT,
+    AlertType VARCHAR(50),
+    Message TEXT,
+    AlertDate DATETIME,
+    Status VARCHAR(20),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID)
+);
+
+CREATE TABLE Preferences (
+    PreferenceID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    DeviceType VARCHAR(50),
+    AutomationSetting TEXT,
+    EnergySavingMode VARCHAR(50),
+    LastUpdated DATETIME,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE MaintenanceLogs (
+    MaintenanceID INT PRIMARY KEY AUTO_INCREMENT,
+    DeviceID INT,
+    MaintenanceDate DATE,
+    Details TEXT,
+    NextScheduledMaintenance DATE,
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID)
+);
+
+CREATE TABLE UserDevice (
+    UserDeviceID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    DeviceID INT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID)
+);
+
+CREATE TABLE DeviceAlert (
+    DeviceAlertID INT PRIMARY KEY AUTO_INCREMENT,
+    DeviceID INT,
+    AlertID INT,
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID),
+    FOREIGN KEY (AlertID) REFERENCES Alerts(AlertID)
+);
+
+CREATE TABLE UserPreference (
+    UserPreferenceID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    PreferenceID INT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (PreferenceID) REFERENCES Preferences(PreferenceID)
+);
+CREATE TABLE DevicePreference (
+    DevicePreferenceID INT PRIMARY KEY AUTO_INCREMENT,
+    DeviceID INT,
+    PreferenceID INT,
+    FOREIGN KEY (DeviceID) REFERENCES Devices(DeviceID),
+    FOREIGN KEY (PreferenceID) REFERENCES Preferences(PreferenceID)
+);
+
+CREATE TABLE UserMaintenance (
+    UserMaintenanceID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    MaintenanceID INT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (MaintenanceID) REFERENCES MaintenanceLogs(MaintenanceID)
+);
+
+CREATE TABLE UserAlert (
+    UserAlertID INT PRIMARY KEY AUTO_INCREMENT,
+    UserID INT,
+    AlertID INT,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (AlertID) REFERENCES Alerts(AlertID)
+);
+
+INSERT INTO Users (FirstName, LastName, Email, Phone, Address, PreferredEnergySavingMode)
+VALUES
+    ('Will', 'Dresden', 'will.dresden@example.cogmail.com', '757-111-2222', '101 Ocean Breeze Street, Virginia Beach, VA', 'Eco Mode'),
+    ('Bodie', 'Cooper', 'bodie.cooper@gmail.com', '757-222-3333', '202 Seaside Avenue, Virginia Beach, VA', 'Balanced Mode'),
+    ('Mike', 'Williams', 'mike.williams@gmail.com', '757-333-4444', '303 Shoreline Drive, Virginia Beach, VA', 'High Efficiency'),
+    ('Matt', 'Watsonn', 'matt.watsonn@gmail.com', '555-444-5555', '404 Main Street, Flint, MI', 'Low Power Mode');
+
+INSERT INTO MaintenanceLogs (DeviceID, MaintenanceDate, Details, NextScheduledMaintenance)
+VALUES
+    (1, '2024-10-01', 'Replaced screen protector and updated software.', '2025-01-01'),
+    (4, '2024-11-01', 'Firmware update completed.', '2025-05-01'),
+    (5, '2024-09-15', 'Filter replaced and fan cleaned.', '2025-03-15'),
+    (9, '2024-10-20', 'Internal storage cleaned and fan checked.', '2025-04-20'),
+    (10, '2024-08-05', 'Added extra cooling fans and updated BIOS.', '2025-02-05');
+
+INSERT INTO Preferences (UserID, DeviceType, AutomationSetting, EnergySavingMode, LastUpdated)
+VALUES
+    (1, 'Smartphone', 'Enable Do Not Disturb from 10 PM to 7 AM', 'Eco Mode', '2024-11-01 08:00:00'),
+    (1, 'Watch', 'Track daily steps and calories automatically', 'Balanced Mode', '2024-10-15 09:30:00'),
+    (2, 'TV', 'Turn off after 1 hour of inactivity', 'Low Power Mode', '2024-09-10 10:00:00'),
+    (3, 'Air Conditioning', 'Automatically adjust temperature based on room occupancy', 'Eco Mode', '2024-08-20 11:00:00'),
+    (3, 'Gaming Console', 'Disable Game Boost during non-peak hours', 'Balanced Mode', '2024-07-30 12:00:00');
+    
+INSERT INTO Devices (DeviceType, Manufacturer, Model, InstallationDate, UserID, CurrentSettings)
+VALUES
+    ('Smartphone', 'Apple', 'iPhone 14', '2024-01-10', 1, '{"DoNotDisturb": "On", "Brightness": "50%"}'),
+    ('Tablet', 'Apple', 'iPad Pro', '2023-08-20', 1, '{"AutoLock": "2 minutes", "BatterySaver": "Off"}'),
+    ('Laptop', 'Dell', 'XPS 15', '2024-06-01', 2, '{"SleepMode": "Enabled", "Brightness": "75%"}'),
+    ('TV', 'Samsung', 'QLED 8K', '2024-05-15', 2, '{"PowerSaving": "On", "Volume": "20%"}'),
+    ('Air Conditioning', 'Daikin', 'FTKM35', '2023-04-22', 3, '{"Temperature": "22°C", "FanSpeed": "Auto"}'),
+    ('Headphones', 'Sony', 'WH-1000XM5', '2024-03-05', 3, '{"NoiseCancellation": "Max", "AmbientMode": "Off"}'),
+    ('Watch', 'Apple', 'Apple Watch Series 9', '2024-09-01', 1, '{"SilentMode": "On", "ActivityTracking": "Enabled"}'),
+    ('Voice Assistant', 'Amazon', 'Echo Dot', '2023-12-12', 2, '{"Volume": "50%", "VoiceRecognition": "Enabled"}'),
+    ('Gaming Console', 'Sony', 'PlayStation 5', '2023-11-05', 3, '{"PowerMode": "Rest", "GameBoost": "On"}'),
+    ('Desktop', 'HP', 'Omen 45L', '2024-02-18', 1, '{"PerformanceMode": "High", "FanControl": "Auto"}');
+
+INSERT INTO UserDevice (UserID, DeviceID)
+VALUES
+    (1, 1), (1, 2), (2, 3), (2, 4), (3, 5), (3, 6), (4, 7), (4, 8);
+INSERT INTO DeviceAlert (DeviceID, AlertID)
+VALUES
+    (1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6);
